@@ -1,134 +1,61 @@
-"""
-Sistema de tráfico de datos con IA 
-"""
-
-
 import numpy as np
 import pandas as pd
-import random 
+import random
 import time
 import matplotlib.pyplot as plt
+import plotly.express as px
+from mpl_toolkits.mplot3d import Axes3D
+
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 
-
 """
-Generar Datset
+Dataset
 """
 
-def generar_datos (n=1000):
+def generar_datos(n=2000):
     np.random.seed(42)
 
-    data = pd.DataFrame({   
-        "paquetes": np.random.randint(100,5000, n),
+    data = pd.DataFrame({
+        "paquetes": np.random.randint(100, 5000, n),
         "bytes": np.random.randint(1000, 60000, n),
         "duración": np.random.uniform(0.1, 15, n),
-        "protocolo": np.random.choice([0,1], n),
+        "protocolo": np.random.choice([0, 1], n),
+        "latencia": np.random.randint(1, 200, n),
+        "puerto": np.random.randint(20, 9000, n),
+        "perdida": np.random.uniform(0, 10, n),
+        "jitter": np.random.uniform(0, 50, n),
+    
     })
 
-
     condiciones = [
-        (data["bytes"] > 45000),
-        (data["paquetes"] < 2000),
+        (data ["bytes"]> 45000  ), (data ["jitter"] > 40),
+        (data ["paquetes"]> 15000), (data ["jitter"] > 20 ),
 
+        ]
+    
+    opciones = ["ataque", "ataque","video", "video"]
 
-    ]
-
-    opciones = ["ataque", "video"]
-
-    data["tipo"] = np.select(condiciones, opciones, default="normal")
+    data["tipo"] = np.select(condiciones, opciones, default = "normal")
 
     return data
 
-"""
-Entrenamiento del modelo
-"""
 
 
-def entrenar_modelo(data): 
-    x = data[["paquetes", "bytes", "duración", "protocolo"]]
-    y =data["tipo"]
-
-    X_train, X_test, y_train, y_test, = train_test_split(
-        x, y, test_size=0.2, random_state=42
-    )
-
-    modelo = RandomForestClassifier(n_estimators=100)
-    modelo.fit(X_train, y_train)
 
 
-    prediciones = modelo.predict(X_test)
+df = generar_datos()
 
-    print("\n Evaluación del modelo:")
-    print("Accuracy:", accuracy_score(y_test, prediciones))
-    print("\n Reporte:\n", classification_report(y_test, prediciones))
+fig = px.scatter_3d(
+    df,
+    x="bytes",
+    y="paquetes",
+    z="latencia",
+    color="tipo",
+    title="Visualización 3D interactiva del tráfico de red",
+    opacity=0.7
+)
 
-    return modelo
-
-""" 
-Simulación en tiempo real
-"""
-
-def simulacion_tiempo_real(modelo, iteraciones=10):
-    print("\n Iniciando la simulación en tiempo real...\n")
-
-    for i in range(iteraciones):
-        paquetes = random.radint(100, 5000)
-        bytes_ = random.randint(1000, 60000)
-        duración = random.uniforme(0.1, 15)
-        protocolo = random.choice([0,1], 1)
-
-        muestra = np.array([paquetes, bytes_, duración, protocolo])
-        pred = modelo.predict(muestra)[0]
-
-        print(f"Iteración {i+1}")
-        print(f"Paquetes: {paquetes}, Bytes: {bytes_}, Duración: {duración:.2f}, Protocolo {protocolo}")
-        print(f"Clasificación: {pred}")
-        print("-" * 50)
-
-        time.sleep(1)
-
-"""
-Gráficas
-"""
-
-
-def graficas(data):
-    plt.figure()
-    plt.hist(data["bytes"])
-    plt.title("Distribución de Bytes")
-    plt.xlabel("Bytes")
-    plt.ylabel("Frecuencia")
-    plt.grid()
-    plt.show()
-
-    plt.figure()
-    plt.hist(data["paquetes"])
-    plt.title("Distribución de Paquetes")
-    plt.xlabel("Paquetes")
-    plt.ylabel("Frecuencia")
-    plt.grid()
-    plt.show()
-
-    plt.figure()
-    data["tipo"].value_counts().plot(kind ='bar')
-    plt.title("Tipos de Tráfico")
-    plt.xlabel("Tipo")
-    plt.ylabel("Cantidad")
-    plt.grid()
-    plt.show()
-
-"""
-Main
-"""
-if __name__ == "__main__":
-    data = generar_datos(1000)
-    print("Dataset generado: ")
-    print(data.head())
-
-    modelo = entrenar_modelo(data)
-
-    graficas(data)
-
-    simulacion_tiempo_real(modelo, iteraciones=10)
+fig.show()

@@ -1,79 +1,61 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import random
 import time
+import matplotlib.pyplot as plt
+import plotly.express as px
+from mpl_toolkits.mplot3d import Axes3D
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
 
 """
-configuración
+Dataset
 """
 
-Num_paquetes = 100
-Tamano_paquete = 1024 #bytes
-velocidad_red = 100000 #bytes por segundo
+def generar_datos(n=2000):
+    np.random.seed(42)
 
-"""
-Listas para almacenar los datos
-
-"""
-Latencias = []
-paquetes_enviados = []
-paquetes_recibidos = []
-perdidos = 0
-
-print("Simulando tráfico de datos ....\n ")
-
-for i in range (Num_paquetes):
-    tiempo_envio = time.time()
-    """
-    Simular latencia (entre 10n y 100 ns)
-    """
-    latencia = random.uniform(0.01, 0.1)
-    time.sleep(latencia)
-
-    """
-    Simular perdida de paquetes (10% de probabilidad)
-    """
-
-    if random.random() < 0.1:
-        perdidos += 1
-        continue
-
-    tiempo_recepcion = time.time()
-    Latencias.append(tiempo_recepcion - tiempo_envio)
-    paquetes_enviados.append(Tamano_paquete)
-    paquetes_recibidos.append(Tamano_paquete)
-
-    """
-    Metricas
-    """
-
-    total_enviados = len(paquetes_enviados)
-    total_recibidos = len(paquetes_recibidos)
-    tasa_perdida = perdidos / Num_paquetes 
+    data = pd.DataFrame({
+        "paquetes": np.random.randint(100, 5000, n),
+        "bytes": np.random.randint(1000, 60000, n),
+        "duración": np.random.uniform(0.1, 15, n),
+        "protocolo": np.random.choice([0, 1], n),
+        "latencia": np.random.randint(1, 200, n),
+        "puerto": np.random.randint(20, 9000, n),
+        "perdida": np.random.uniform(0, 10, n),
+        "jitter": np.random.uniform(0, 50, n),
     
-    latencia_promedio = np.mean(latencia)
+    })
 
-    throughput = (sum(paquetes_recibidos) / sum (Latencias)) if Latencias else 0
+    condiciones = [
+        (data ["bytes"]> 45000  ), (data ["jitter"] > 40),
+        (data ["paquetes"]> 15000), (data ["jitter"] > 20 ),
 
-    """
-    Configuración de resultados
-    """
-
-    print(f"Paquetes enviados: {total_enviados}")
-    print(f"Paquetes recibidos: {total_recibidos}")
-    print(f"Paquetes perdida: {perdidos}")
-    print(f"Tasa de perdidad: {tasa_perdida:.2f}")
-    print(f"Latencia promedio: {latencia_promedio:.4f}")
-    print(f"Throughput: {throughput:.2f} bytes/s")
-
-    """Grafica de latencias"""
-
-    plt.plot(Latencias)
-    plt.title("Latencia por paquete")
-    plt.xlabel("Paquetes")
-    plt.ylabel("Latencia(s)")
-    plt.grid()
-    plt.show()
-
+        ]
     
+    opciones = ["ataque", "ataque","video", "video"]
+
+    data["tipo"] = np.select(condiciones, opciones, default = "normal")
+
+    return data
+
+
+
+
+
+df = generar_datos()
+
+fig = px.scatter_3d(
+    df,
+    x="bytes",
+    y="paquetes",
+    z="latencia",
+    color="tipo",
+    title="Visualización 3D interactiva del tráfico de red",
+    opacity=0.7
+)
+
+fig.show()

@@ -51,7 +51,7 @@ def generar_datos(n=1000):
 
 
 """
-Entrenaniento del modelo 
+Entrenaniento del modelo, Es el cómo el algoritmo piensa y determina que es un ataque y denomina otros datos importantes como los resultados que se muestran, la precisión del algoritmo, la matriz de confusión y el reporte
 """
 
 def entrenar_modelo(data):
@@ -78,7 +78,7 @@ def entrenar_modelo(data):
 
 
 """
-Simulación en tiempo real
+Simulación en tiempo real, es la simulación ya activa que muestra que datos son considerados ataques y que datos son considerados normales
 """
 
 def simulacion_tiempo_real(modelo, iteraciones=10):

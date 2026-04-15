@@ -1,79 +1,63 @@
+"""Practica 4"""
+
+import os
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import random
-import time
+import sklearn.tree import DecisionTreeClassifier
+
+# Simulación de datos
 
 """
-configuración
+Caracteristicas: [Tiempo_respuesta_ms]
 """
 
-Num_paquetes = 100
-Tamano_paquete = 1024 #bytes
-velocidad_red = 100000 #bytes por segundo
+x = np.array([10], [20], [30], [200], [300], [400])
+y = np.array([1, 1 ,1 , 0, 0, 0])
 
 """
-Listas para almacenar los datos
+Modelo de IA
+"""
+
+modelo = DecisionTreeClassifier
+modelo.fit(X,y)
 
 """
-Latencias = []
-paquetes_enviados = []
-paquetes_recibidos = []
-perdidos = 0
+Escaneo de red
+"""
 
-print("Simulando tráfico de datos ....\n ")
+red = "192.168.1"
 
-for i in range (Num_paquetes):
-    tiempo_envio = time.time()
-    """
-    Simular latencia (entre 10n y 100 ns)
-    """
-    latencia = random.uniform(0.01, 0.1)
-    time.sleep(latencia)
+for i in range (1,20):
+    ip = red + str(i)
 
     """
-    Simular perdida de paquetes (10% de probabilidad)
+    Ping window
     """
 
-    if random.random() < 0.1:
-        perdidos += 1
-        continue
+    respuesta = os.popen(f"ping -n -w 100 {ip}").read()
 
-    tiempo_recepcion = time.time()
-    Latencias.append(tiempo_recepcion - tiempo_envio)
-    paquetes_enviados.append(Tamano_paquete)
-    paquetes_recibidos.append(Tamano_paquete)
+    if "tiempo=" in respuesta:
+
+        try:
+            tiempo = int(respuesta.split("tiempo=") [1].split ("ms") [0])
+
+        except:
+            tiempo = 300
+
+    else:
+        tiempo = 400
 
     """
-    Metricas
+    Predicción con IA
     """
-
-    total_enviados = len(paquetes_enviados)
-    total_recibidos = len(paquetes_recibidos)
-    tasa_perdida = perdidos / Num_paquetes 
     
-    latencia_promedio = np.mean(latencia)
-
-    throughput = (sum(paquetes_recibidos) / sum (Latencias)) if Latencias else 0
-
-    """
-    Configuración de resultados
-    """
-
-    print(f"Paquetes enviados: {total_enviados}")
-    print(f"Paquetes recibidos: {total_recibidos}")
-    print(f"Paquetes perdida: {perdidos}")
-    print(f"Tasa de perdidad: {tasa_perdida:.2f}")
-    print(f"Latencia promedio: {latencia_promedio:.4f}")
-    print(f"Throughput: {throughput:.2f} bytes/s")
-
-    """Grafica de latencias"""
-
-    plt.plot(Latencias)
-    plt.title("Latencia por paquete")
-    plt.xlabel("Paquetes")
-    plt.ylabel("Latencia(s)")
-    plt.grid()
-    plt.show()
-
+    prediccion = modelo.predict([[tiempo]]) [0]
     
+    prediccion = modelo.predict([[tiempo]])
+
+    if predicci == 1:
+        print(f"Dispositivo Activa IA {ip} - {tiempo} ms")
+
+    else:
+        print(f"Dispositivo Inactivo (IA): {ip}")
+
+        

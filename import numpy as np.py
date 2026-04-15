@@ -5,75 +5,70 @@ import random
 import time
 
 """
-configuración
-"""
-
-Num_paquetes = 100
-Tamano_paquete = 1024 #bytes
-velocidad_red = 100000 #bytes por segundo
+Configuracion
 
 """
-Listas para almacenar los datos
+Num_paquetes=100
+Tam_paquetes=1024 #Bytes
+Velocidad_red=100000 #bytes por segundo
 
 """
-Latencias = []
-paquetes_enviados = []
-paquetes_recibidos = []
-perdidos = 0
+Lista para almacenar datos
+"""
 
-print("Simulando tráfico de datos ....\n ")
+latencias=[]
+paquetes_enviados=[]
+paquetes_recibidos=[]
+perdidos=0
+
+print("simulando trafico de datos")
 
 for i in range (Num_paquetes):
-    tiempo_envio = time.time()
+    tiempo_envio=time.time()
+
     """
-    Simular latencia (entre 10n y 100 ns)
+    Simular latencia (entre 10ns y 100ns)
     """
-    latencia = random.uniform(0.01, 0.1)
+    latencia=random.uniform(0.01,0.1)
     time.sleep(latencia)
 
     """
-    Simular perdida de paquetes (10% de probabilidad)
+    Simular perdida de paquetes (10%)
     """
-
     if random.random() < 0.1:
         perdidos += 1
         continue
 
     tiempo_recepcion = time.time()
-    Latencias.append(tiempo_recepcion - tiempo_envio)
-    paquetes_enviados.append(Tamano_paquete)
-    paquetes_recibidos.append(Tamano_paquete)
+    latencias.append(tiempo_recepcion - tiempo_envio)
+    paquetes_enviados.append(Tam_paquetes)
+    paquetes_recibidos.append(Tam_paquetes)
 
-    """
-    Metricas
-    """
+"""
+Metricas
+"""
+total_enviados = len(paquetes_enviados)
+total_recibidos = len(paquetes_recibidos)
+tasa_perdida = perdidos/Num_paquetes
 
-    total_enviados = len(paquetes_enviados)
-    total_recibidos = len(paquetes_recibidos)
-    tasa_perdida = perdidos / Num_paquetes 
-    
-    latencia_promedio = np.mean(latencia)
+latencia_promedio = np.mean(latencias)
+throughput = (sum(paquetes_recibidos)/sum(latencias)) if latencias else 0
 
-    throughput = (sum(paquetes_recibidos) / sum (Latencias)) if Latencias else 0
+"""
+Configuracion de resultados
+"""
+print(f"paquetes enviados: {total_enviados}")
+print(f"paquetes recibidos: {total_recibidos}")
+print(f"paquetes perdidos: {perdidos}")
+print(f"tasa de perdida: {tasa_perdida}")
+print(f"throughput: {throughput:.2f} bytes/s")
 
-    """
-    Configuración de resultados
-    """
-
-    print(f"Paquetes enviados: {total_enviados}")
-    print(f"Paquetes recibidos: {total_recibidos}")
-    print(f"Paquetes perdida: {perdidos}")
-    print(f"Tasa de perdidad: {tasa_perdida:.2f}")
-    print(f"Latencia promedio: {latencia_promedio:.4f}")
-    print(f"Throughput: {throughput:.2f} bytes/s")
-
-    """Grafica de latencias"""
-
-    plt.plot(Latencias)
-    plt.title("Latencia por paquete")
-    plt.xlabel("Paquetes")
-    plt.ylabel("Latencia(s)")
-    plt.grid()
-    plt.show()
-
-    
+"""
+Grafica de latencias
+"""
+plt.plot(latencias)
+plt.title("latencia por paquete")
+plt.xlabel("paquetes")
+plt.ylabel("latencia(s)")
+plt.grid()
+plt.show()

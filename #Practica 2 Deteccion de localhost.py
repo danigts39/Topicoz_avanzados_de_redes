@@ -60,7 +60,7 @@ y=np.array([1,1,1,0,0])
 modelo=DecisionTreeClassifier()
 modelo.fit(x,y)
 
-"""escaner de red"""
+"""escaner de red test"""
 red = "192.168.1."
 for i in range(1,20):
     ip = red + str(i)

@@ -1,34 +1,60 @@
 from fastapi import FastAPI, Depends
-from sqlalchemy.orm import session
-from database import SessionLocal
-import models, schemas 
+from sqlalchemy.orm import Session
+
+from app.core.database import SessionLocal, engine, Base
+
+from app.schemas.calificacion import (
+    CalificacionCreate,
+    CalificacionResponse
+)
+
+from app.crud.calificacion import (
+    crear_calificacion,
+    obtener_calificaciones
+)
+
+# Crear tablas automáticamente
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-"""
-Crear sesion
-"""
 
+# Conexión a DB
 def get_db():
     db = SessionLocal()
+
     try:
         yield db
     finally:
         db.close()
 
-"""
-Crear Calificación
-"""
-@app.post("/calificaciones/", response_model=schemas.CalificacionResponse)
-def crear_calificacion(data: schemas.CalificacionCreate, db: Session = Depends(get_db)):
-    nueva = models.Calificacion(**data.dict())
-    db.add(nueva)
-    db.commit()
-    db.refresh(nueva)
-    return nueva
 
-"""
-Obtener todos
-"""
+# Crear calificación
+@app.post(
+    "/calificaciones/",
+    response_model=CalificacionResponse
+)
+def crear(
+    data: CalificacionCreate,
+    db: Session = Depends(get_db)
+):
+    return crear_calificacion(db, data)
 
-@app.get("/calificaciones/", response_model=list[schemas.Calificacion])
+
+# Obtener calificaciones
+@app.get(
+    "/calificaciones/",
+    response_model=list[CalificacionResponse]
+)
+def listar(
+    db: Session = Depends(get_db)
+):
+    return obtener_calificaciones(db)
+
+from app.core.database import (
+    SessionLocal,
+    engine,
+    Base
+)
+
+Base.metadata.create_all(bind=engine)

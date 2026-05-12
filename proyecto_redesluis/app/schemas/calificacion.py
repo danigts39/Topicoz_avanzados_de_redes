@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+"""from pydantic import BaseModel
 
 class CalificacionCreate(BaseModel):
     alumno: str
@@ -11,4 +11,17 @@ class CalificacionResponse(CalificacionCreate):
 
 
     class Config:
-        orm_mode = True
+        orm_mode = True"""
+
+from pydantic import BaseModel
+
+class CalificacionCreate(BaseModel):
+    nombre: str
+    materia: str
+    calificacion: float
+
+class CalificacionResponse(CalificacionCreate):
+    id: int
+
+    class Config:
+        from_attributes = True
